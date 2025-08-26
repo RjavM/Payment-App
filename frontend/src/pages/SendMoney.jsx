@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom"
 import axios from "axios"
 import {useState, useEffect} from "react"
 import { useNavigate } from "react-router-dom"
+import { getUserInfo } from "../components/getUserInfo"
 
 
 export const Send = () => {
@@ -49,7 +50,7 @@ export const Send = () => {
                                 Amount (in Rs)
                             </label>
                             <input onChange={(e) => {
-                                setAmount(e.data.value)
+                                setAmount(e.target.value)
                             }} type="number" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" id="amount" placeholder="Enter amount"></input>
                         </div>
                         <button onClick={() => {
@@ -58,7 +59,7 @@ export const Send = () => {
                                 amount
                             }, {
                                 headers: {
-                                    Authorization: "Bearer" + localStorage.getItem("token")
+                                    Authorization: "Bearer " + localStorage.getItem("token")
                                 }
                             });
                         }} className="w-full h-9 justify-center bg-blue-500 hover:bg-blue-600 text-white rounded-md text-sm font-medium ring-offset-background">Initiate Transfer</button>

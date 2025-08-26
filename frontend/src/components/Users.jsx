@@ -28,7 +28,7 @@ export const Users = () => {
             }} type="text" placeholder="Search users..." className="w-full px-2 py-1 border rounded border-slate-200"></input>
         </div>
         <div>
-            {users.map(user => <User user={user} label={"Send Money"} onClick={() => {navigate("/send?id="+user._id+"&name=" + user.firstName)}}/>)}
+            {users.map(user => <User user={user} label={"Send Money"} onClick={() => {navigate("/send?id="+user._id+"&name=" + user.firstname)}}/>)}
         </div>
     </div>
 }

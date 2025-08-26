@@ -3,14 +3,15 @@ const router = Router();
 const z = require("zod");
 const { User, Account } = require("../db");
 const jwt = require("jsonwebtoken");
-const JWT_SECRET = require("../config");
+const { JWT_SECRET } = require("../config");
 const { authMiddleware } = require("./authMiddleware");
+const bcrypt = require("bcryptjs");
 
 const signupSchema = z.object({
-    username: z.string().email(),
-    password: z.string(),
-    firstname: z.string(),
-    lastname: z.string(),
+    username: z.string().email("Invalid email format"),
+    password: z.string().min(6, "Password must be at least 6 characters"),
+    firstname: z.string().min(1, "First name is required").max(30, "First name too long"),
+    lastname: z.string().min(1, "Last name is required").max(30, "Last name too long"),
 })
 
 router.post("/signup", async (req, res) => {
@@ -32,10 +33,15 @@ router.post("/signup", async (req, res) => {
     if (user) {
         res.status(400).json({
             msg: "User already exists!"
-        })
+        });
+        return;
     }
 
-    const dbUser = await User.create(body);
+    // Hash password before saving
+    const hashedPassword = await bcrypt.hash(body.password, 10);
+    const userData = { ...body, password: hashedPassword };
+    
+    const dbUser = await User.create(userData);
 
     const userId = dbUser._id;
 
@@ -65,26 +71,35 @@ router.get("/me", authMiddleware, (req, res) => {
 router.post("/signin", async (req, res) => {
     const body = req.body;
 
-    const user = await User.findOne({ username: body.username, password: body.password });
+    const user = await User.findOne({ username: body.username });
 
     if (!user) {
         res.status(400).json({
-            msg: "Error while logging in"
-        })
+            msg: "User not found"
+        });
+        return;
     }
 
-    else {
-        const token = "Bearer " + jwt.sign(body, JWT_SECRET);
-        res.status(200).json({
-            token: token
-        })
+    // Verify password
+    const isPasswordValid = await bcrypt.compare(body.password, user.password);
+    
+    if (!isPasswordValid) {
+        res.status(400).json({
+            msg: "Invalid password"
+        });
+        return;
     }
-})
+
+    const token = "Bearer " + jwt.sign({ userId: user._id }, JWT_SECRET);
+    res.status(200).json({
+        token: token
+    });
+});
 
 const updateSchema = z.object({
-    password: z.string().optional(),
-    firstname: z.string().optional(),
-    lastname: z.string().optional()
+    password: z.string().min(6, "Password must be at least 6 characters").optional(),
+    firstname: z.string().min(1, "First name is required").max(30, "First name too long").optional(),
+    lastname: z.string().min(1, "Last name is required").max(30, "Last name too long").optional()
 })
 
 router.put("/", authMiddleware, async (req, res) => {
@@ -94,16 +109,16 @@ router.put("/", authMiddleware, async (req, res) => {
     if (!success) {
         res.status(403).json({
             msg: "Error while updating user information"
-        })
+        });
+        return;
     }
 
-    await User.updateOne(body, {
-        id: req.userId
-    })
+    await User.updateOne({ _id: req.userId }, body);
 
-    res.status(403).json({
+    res.status(200).json({
         msg: "Updated successfully!"
-    })
+    });
+});
 
 
 router.get("/bulk", authMiddleware, async (req, res) => {
@@ -131,6 +146,5 @@ router.get("/bulk", authMiddleware, async (req, res) => {
             )
         })
     })
-})
 
 module.exports = router;

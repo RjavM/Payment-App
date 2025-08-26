@@ -8,7 +8,7 @@ export const User = ({user, label, onClick}) => {
                         </div>
                 </div>
                 <div className="text-xl font-roboto">
-                    {user.firstName} {user.lastName}
+                    {user.firstname} {user.lastname}
                 </div>
             </div>
             <div>
