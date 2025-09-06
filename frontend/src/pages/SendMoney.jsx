@@ -12,6 +12,9 @@ export const Send = () => {
     const id = searchParams.get("id");
     const name = searchParams.get("name");
     const [amount, setAmount] = useState(0);
+    const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
+    const [loading, setLoading] = useState(false);
 
     const [userInfo, setUserInfo] = useState(null);
     const navigate = useNavigate();
@@ -36,6 +39,16 @@ export const Send = () => {
             <div className="border h-min text-card-foreground max-w-md p-4 space-y-2 w-96 bg-white shadow-lg rounded-md">
                 <div className="flex flex-col">
                     <h2 className="text-3xl font-bold text-center">Send Money</h2>
+                    {error && (
+                        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mt-4">
+                            {error}
+                        </div>
+                    )}
+                    {success && (
+                        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mt-4">
+                            {success}
+                        </div>
+                    )}
                 </div>
                 <div className="p-6">
                     <div className="pb-6 pl-8 flex items-center space-x-4">
@@ -53,16 +66,73 @@ export const Send = () => {
                                 setAmount(e.target.value)
                             }} type="number" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" id="amount" placeholder="Enter amount"></input>
                         </div>
-                        <button onClick={() => {
-                            axios.post("http://localhost:3000/api/v1/account/transfer", {
-                                to: id,
-                                amount
-                            }, {
-                                headers: {
-                                    Authorization: "Bearer " + localStorage.getItem("token")
+                        <button onClick={async () => {
+                            setError("");
+                            setSuccess("");
+                            setLoading(true);
+                            
+                            // Validation
+                            if (!amount || amount <= 0) {
+                                setError("Please enter a valid amount");
+                                setLoading(false);
+                                return;
+                            }
+                            
+                            if (!id) {
+                                setError("Invalid recipient");
+                                setLoading(false);
+                                return;
+                            }
+                            
+                            try {
+                                const res = await axios.post("http://localhost:3000/api/v1/account/transfer", {
+                                    to: id,
+                                    amount: parseFloat(amount)
+                                }, {
+                                    headers: {
+                                        Authorization: localStorage.getItem("token")
+                                    }
+                                });
+                                
+                                if (res.data.msg === "Transfer successful") {
+                                    setSuccess(`Successfully transferred Rs ${amount} to ${name}`);
+                                    setAmount(0);
+                                    
+                                    // Notify other components that balance has changed
+                                    window.dispatchEvent(new CustomEvent('balanceUpdated'));
+                                    
+                                    // Redirect to dashboard after a short delay
+                                    setTimeout(() => {
+                                        navigate("/Dashboard");
+                                    }, 2000);
+                                } else {
+                                    setError("Transfer failed. Please try again.");
                                 }
-                            });
-                        }} className="w-full h-9 justify-center bg-blue-500 hover:bg-blue-600 text-white rounded-md text-sm font-medium ring-offset-background">Initiate Transfer</button>
+                            } catch (error) {
+                                if (error.response?.data?.msg) {
+                                    setError(error.response.data.msg);
+                                } else if (error.response?.status === 400) {
+                                    setError("Invalid transfer request");
+                                } else if (error.response?.status === 401) {
+                                    setError("Please sign in again");
+                                    navigate("/signin");
+                                } else if (error.response?.status === 500) {
+                                    setError("Server error. Please try again later.");
+                                } else {
+                                    setError("Network error. Please check your connection.");
+                                }
+                            } finally {
+                                setLoading(false);
+                            }
+                        }} 
+                        disabled={loading}
+                        className={`w-full h-9 justify-center text-white rounded-md text-sm font-medium ring-offset-background ${
+                            loading 
+                                ? 'bg-gray-400 cursor-not-allowed' 
+                                : 'bg-blue-500 hover:bg-blue-600'
+                        }`}>
+                            {loading ? "Processing..." : "Initiate Transfer"}
+                        </button>
                     </div>
                 </div>
             </div>

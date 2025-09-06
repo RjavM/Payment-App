@@ -6,9 +6,9 @@ const authMiddleware = async (req, res, next) => {
     
 
     if (!header || !header.startsWith("Bearer")) {
-        res.status(403).json({
+        return res.status(403).json({
             msg: "Error"
-        })
+        });
     }
 
     const token = header.split(' ')[1];
@@ -18,12 +18,16 @@ const authMiddleware = async (req, res, next) => {
         if (decoded.userId) {
             req.userId = decoded.userId;
             next();
+        } else {
+            return res.status(403).json({
+                msg: "Invalid token"
+            });
         }
     }
     catch(e) {
-        res.status(403).json({
+        return res.status(403).json({
             msg: e
-        })
+        });
     }
 }
 
