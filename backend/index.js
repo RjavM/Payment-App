@@ -12,20 +12,20 @@ async function connectToMongoDB() {
             serverSelectionTimeoutMS: 10000,
             connectTimeoutMS: 10000,
         });
-        console.log("✅ Connected to MongoDB successfully");
+        console.log("Connected to MongoDB successfully");
     } catch (error) {
-        console.error("❌ Error connecting to MongoDB:", error);
-        console.log("🔄 Retrying connection in 5 seconds...");
+        console.error("Error connecting to MongoDB:", error);
+        console.log("Retrying connection in 5 seconds...");
         setTimeout(connectToMongoDB, 5000);
     }
 }
 
-// Start MongoDB connection
+
 connectToMongoDB();
 
 app.use(express.json());
 
-// Configure CORS based on environment
+
 const corsOptions = {
     origin: NODE_ENV === 'production' ? FRONTEND_URL : true,
     credentials: true,
