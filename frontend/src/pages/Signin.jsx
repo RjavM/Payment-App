@@ -7,6 +7,7 @@ import { useState } from "react"
 import axios from 'axios'
 import { LoginTopBar } from "../components/LoginTopBar.jsx"
 import { useNavigate } from "react-router-dom"
+import { API_ENDPOINTS, handleApiError } from "../config/api.js"
 
 
 
@@ -35,17 +36,23 @@ export const Signin = () => {
                         setUsername(e.target.value)
                         console.log(e.target.value);
                     }} label={"Email"} placeholder={"JohnDoe@email.com"} />
-                    <InputBox onChange={(e) => {
-                        setPassword(e.target.value)
-                        console.log(e.target.value);
-                    }} label={"Password"} placeholder={"ExamplePass@123"} />
+                    <InputBox 
+                        type="password"
+                        value={password}
+                        onChange={(e) => {
+                            setPassword(e.target.value)
+                            console.log(e.target.value);
+                        }} 
+                        label={"Password"} 
+                        placeholder={"ExamplePass@123"} 
+                    />
                     <div className="pt-4">
                         <Button onClick={async() => {
                             setError("");
                             setLoading(true);
                             
                             try {
-                                const res = await axios.post("http://localhost:3000/api/v1/user/signin", {
+                                const res = await axios.post(API_ENDPOINTS.SIGNIN, {
                                     username,
                                     password
                                 });
@@ -57,15 +64,8 @@ export const Signin = () => {
                                     setError("Sign in failed. Please try again.");
                                 }
                             } catch (error) {
-                                if (error.response?.data?.msg) {
-                                    setError(error.response.data.msg);
-                                } else if (error.response?.status === 400) {
-                                    setError("Invalid username or password");
-                                } else if (error.response?.status === 500) {
-                                    setError("Server error. Please try again later.");
-                                } else {
-                                    setError("Network error. Please check your connection.");
-                                }
+                                const errorInfo = handleApiError(error);
+                                setError(errorInfo.message);
                             } finally {
                                 setLoading(false);
                             }

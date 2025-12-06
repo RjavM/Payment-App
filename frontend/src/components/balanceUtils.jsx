@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { getBalance } from "./getBalance";
 
 // Utility function to refresh balance and notify other components
@@ -18,7 +18,7 @@ export const useBalance = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
 
-    const fetchBalance = async () => {
+    const fetchBalance = useCallback(async () => {
         setLoading(true);
         setError("");
         try {
@@ -30,7 +30,7 @@ export const useBalance = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
 
     return { balance, loading, error, fetchBalance };
 };

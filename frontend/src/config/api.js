@@ -1,7 +1,7 @@
 // API Configuration
 // This file centralizes all API endpoints and configuration
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
+const API_BASE_URL = "http://localhost:3000/api/v1";
 
 export const API_ENDPOINTS = {
     // User endpoints
@@ -34,11 +34,29 @@ export const getAuthHeaders = () => {
 // Helper function to handle API errors
 export const handleApiError = (error) => {
     if (error.response) {
-        // Server responded with error status
+        const { status, data } = error.response;
+        let message = data?.msg || data?.message || 'Server error';
+
+        if (!data?.msg && !data?.message) {
+            if (status === 502) {
+                message = 'Service temporarily unavailable. Please try again in a moment.';
+            } else if (status === 503) {
+                message = 'Service unavailable. Please try again later.';
+            } else if (status === 500) {
+                message = 'Internal server error. Please try again later.';
+            } else if (status === 400) {
+                message = 'Invalid request. Please check your input.';
+            } else if (status === 401) {
+                message = 'Authentication failed. Please check your credentials.';
+            } else if (status === 404) {
+                message = 'Service not found. Please try again later.';
+            }
+        }
+
         return {
-            message: error.response.data?.msg || 'Server error',
-            status: error.response.status,
-            data: error.response.data
+            message,
+            status,
+            data
         };
     } else if (error.request) {
         // Request was made but no response received

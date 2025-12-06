@@ -48,7 +48,7 @@ export const Balance = ({balanceAmount, loading, error}) => {
 
     return (
         <div className="font-bold text-bold text-2xl pt-6 pl-10 font-roboto">
-            Your balance amount is: Rs {formattedBalance}/-
+            Your balance amount is: ${formattedBalance}
         </div>
     );
 }

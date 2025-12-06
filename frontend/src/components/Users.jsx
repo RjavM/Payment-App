@@ -1,11 +1,11 @@
 import { User } from "./User"
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import {useEffect} from "react"
 
 
-export const Users = ({ onTransferSuccess }) => {
+export const Users = ({ onTransferSuccess, currentUserId }) => {
     const [users, setUsers] = useState([]);
     const [filter, setFilter] = useState("");
     const [error, setError] = useState("");
@@ -41,6 +41,11 @@ export const Users = ({ onTransferSuccess }) => {
         fetchUsers();
     }, [filter, navigate])
 
+    const filteredUsers = useMemo(() => {
+        if (!currentUserId) return users;
+        return users.filter(user => user._id !== currentUserId);
+    }, [users, currentUserId]);
+
     return <div className="pl-10">
         <div className="font-bold font-roboto mt-6 text-2xl justify-center">
             Users
@@ -63,15 +68,15 @@ export const Users = ({ onTransferSuccess }) => {
             </div>
         )}
         
-        {!loading && !error && users.length === 0 && (
+        {!loading && !error && filteredUsers.length === 0 && (
             <div className="text-center py-4 text-gray-500">
                 No users found
             </div>
         )}
         
-        {!loading && !error && users.length > 0 && (
+        {!loading && !error && filteredUsers.length > 0 && (
             <div>
-                {users.map(user => <User user={user} label={"Send Money"} onClick={() => {navigate("/send?id="+user._id+"&name=" + user.firstname)}}/>)}
+                {filteredUsers.map(user => <User user={user} label={"Send Money"} onClick={() => {navigate("/send?id="+user._id+"&name=" + user.firstname)}}/>)}
             </div>
         )}
     </div>

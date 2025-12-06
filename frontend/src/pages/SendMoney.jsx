@@ -33,7 +33,7 @@ export const Send = () => {
     }, [navigate])
 
     return <>
-        <AppBar />
+        <AppBar user={userInfo} />
         <div className="flex justify-center h-screen bg-gray-100">
         <div className="h-full flex flex-col justify-center">
             <div className="border h-min text-card-foreground max-w-md p-4 space-y-2 w-96 bg-white shadow-lg rounded-md">
@@ -59,8 +59,8 @@ export const Send = () => {
                     </div>
                     <div className="space-y-4">
                         <div className="space-y-2">
-                            <label class = "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-5" for="amount">
-                                Amount (in Rs)
+                            <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-5" htmlFor="amount">
+                                Amount (in $)
                             </label>
                             <input onChange={(e) => {
                                 setAmount(e.target.value)
@@ -95,7 +95,7 @@ export const Send = () => {
                                 });
                                 
                                 if (res.data.msg === "Transfer successful") {
-                                    setSuccess(`Successfully transferred Rs ${amount} to ${name}`);
+                                    setSuccess(`Successfully transferred $${amount} to ${name}`);
                                     setAmount(0);
                                     
                                     // Notify other components that balance has changed

@@ -25,11 +25,14 @@ export const Dashboard = () => {
                     setUserInfo(data.user);
                 } else {
                     setError("Please sign in to continue");
-                    setTimeout(() => navigate("/signin"), 2000);
+                    navigate("/signin", { replace: true });
+                    return;
                 }
             } catch (error) {
                 setError("Failed to load user information");
                 console.error("Error fetching user info:", error);
+                navigate("/signin", { replace: true });
+                return;
             } finally {
                 setLoading(false);
             }
@@ -54,35 +57,37 @@ export const Dashboard = () => {
 
     if (loading) {
         return (
-            <div className="pl-4">
-                <AppBar />
-                <div className="flex justify-center items-center h-64">
+            <>
+                <AppBar user={userInfo} />
+                <div className="flex justify-center items-center h-64 px-4">
                     <div className="text-lg">Loading...</div>
                 </div>
-            </div>
+            </>
         );
     }
 
     if (error) {
         return (
-            <div className="pl-4">
-                <AppBar />
-                <div className="flex justify-center items-center h-64">
+            <>
+                <AppBar user={userInfo} />
+                <div className="flex justify-center items-center h-64 px-4">
                     <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
                         {error}
                     </div>
                 </div>
-            </div>
+            </>
         );
     }
 
-    return <div className="pl-4">
-        <AppBar />
-        <Balance 
-            balanceAmount={balance} 
-            loading={balanceLoading} 
-            error={balanceError} 
-        />
-        <Users />
-    </div>
+    return <>
+        <AppBar user={userInfo} />
+        <div className="px-4">
+            <Balance 
+                balanceAmount={balance} 
+                loading={balanceLoading} 
+                error={balanceError} 
+            />
+            <Users currentUserId={userInfo?._id} />
+        </div>
+    </>
 }
