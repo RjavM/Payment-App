@@ -61,11 +61,25 @@ router.post("/signup", async (req, res) => {
 
 })
 
-router.get("/me", authMiddleware, (req, res) => {
-    res.status(200).json({
-        msg: "User is signed in",
-        user: req.userId
-    })
+router.get("/me", authMiddleware, async (req, res) => {
+    try {
+        const user = await User.findById(req.userId).select("firstname lastname username");
+        if (!user) {
+            return res.status(404).json({
+                msg: "User not found"
+            });
+        }
+
+        res.status(200).json({
+            msg: "User is signed in",
+            user
+        });
+    } catch (error) {
+        console.error("Error fetching user profile:", error);
+        res.status(500).json({
+            msg: "Failed to fetch user profile"
+        });
+    }
 })
 
 router.post("/signin", async (req, res) => {
@@ -126,14 +140,21 @@ router.get("/bulk", authMiddleware, async (req, res) => {
         const userDetail = req.query.filter || "";
 
         const users = await User.find({
-            $or: [{
-                firstname: {
-                    "$regex": userDetail
+            $and: [
+                { _id: { $ne: req.userId } },
+                {
+                    $or: [{
+                        firstname: {
+                            "$regex": userDetail,
+                            "$options": "i"
+                        }
+                    }, {
+                        lastname: {
+                            "$regex": userDetail,
+                            "$options": "i"
+                    }}]
                 }
-            }, {
-                lastname: {
-                    "$regex": userDetail
-            }}]
+            ]
         })
 
         res.status(200).json({

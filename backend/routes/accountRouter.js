@@ -24,6 +24,7 @@ const transferSchema = z.object({
 });
 
 router.post("/transfer", authMiddleware, async(req, res) => {
+    let session;
     try {
         const body = req.body;
         const validation = transferSchema.safeParse(body);
@@ -35,7 +36,7 @@ router.post("/transfer", authMiddleware, async(req, res) => {
             });
         }
         
-        const session = await mongoose.startSession()
+        session = await mongoose.startSession()
 
         session.startTransaction();
         
@@ -78,7 +79,9 @@ router.post("/transfer", authMiddleware, async(req, res) => {
         });
         
     } catch (error) {
-        await session.abortTransaction();
+        if (session) {
+            await session.abortTransaction();
+        }
         res.status(500).json({
             msg: "Transfer failed",
             error: error.message
