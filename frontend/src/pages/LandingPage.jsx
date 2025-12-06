@@ -59,7 +59,7 @@ export const LandingPage = () => {
 
             {/* Footer */}
             <div className="bg-white py-4 text-center text-gray-600">
-                <p>&copy; 2024 PayMe. All rights reserved.</p>
+                <p>&copy; 2025 PayMe. All rights reserved.</p>
             </div>
         </div>
     );
