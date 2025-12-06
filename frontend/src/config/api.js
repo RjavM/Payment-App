@@ -1,7 +1,7 @@
 // API Configuration
 // This file centralizes all API endpoints and configuration
 
-const API_BASE_URL = "http://localhost:3000/api/v1";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api/v1";
 
 export const API_ENDPOINTS = {
     // User endpoints
