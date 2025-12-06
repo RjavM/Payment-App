@@ -4,6 +4,7 @@ import axios from "axios"
 import {useState, useEffect} from "react"
 import { useNavigate } from "react-router-dom"
 import { getUserInfo } from "../components/getUserInfo"
+import { API_ENDPOINTS, getAuthHeaders } from "../config/api"
 
 
 export const Send = () => {
@@ -85,13 +86,11 @@ export const Send = () => {
                             }
                             
                             try {
-                                const res = await axios.post("http://localhost:3000/api/v1/account/transfer", {
+                                const res = await axios.post(API_ENDPOINTS.TRANSFER, {
                                     to: id,
                                     amount: parseFloat(amount)
                                 }, {
-                                    headers: {
-                                        Authorization: localStorage.getItem("token")
-                                    }
+                                    headers: getAuthHeaders()
                                 });
                                 
                                 if (res.data.msg === "Transfer successful") {

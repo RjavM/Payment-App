@@ -3,6 +3,7 @@ import { useState, useMemo } from 'react'
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import {useEffect} from "react"
+import { API_ENDPOINTS } from "../config/api";
 
 
 export const Users = ({ onTransferSuccess, currentUserId }) => {
@@ -17,7 +18,7 @@ export const Users = ({ onTransferSuccess, currentUserId }) => {
             try {
                 setLoading(true);
                 setError("");
-                const res = await axios.get("http://localhost:3000/api/v1/user/bulk?filter="+filter, {
+                const res = await axios.get(`${API_ENDPOINTS.USER_BULK}?filter=${filter}`, {
                     headers: {
                         Authorization: localStorage.getItem("token")
                     }
