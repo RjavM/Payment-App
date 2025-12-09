@@ -1,7 +1,7 @@
-
-
-export const Heading = ({label}) => {
-    return <>
-        <div className="text-black-500 font-bold font-roboto text-4xl pt-6">{label}</div>
-    </>
+export const Heading = ({ label, className = "" }) => {
+    return (
+        <h1 className={`text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight ${className}`}>
+            {label}
+        </h1>
+    );
 }   

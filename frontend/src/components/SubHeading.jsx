@@ -1,7 +1,7 @@
-
-
-export const SubHeading = ({label}) => {
-    return <>
-        <div className="text-slate-500 font-roboto text-md pt-1 px-4">{label}</div>
-    </>
+export const SubHeading = ({ label, className = "" }) => {
+    return (
+        <p className={`text-base text-slate-500 max-w-2xl ${className}`}>
+            {label}
+        </p>
+    );
 }
