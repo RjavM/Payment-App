@@ -5,8 +5,8 @@ const cors = require("cors")
 const { PORT, MONGODB_URI, FRONTEND_URL, NODE_ENV } = require("./config")
 const mongoose = require("mongoose")
 
-// Connect to MongoDB with retry logic
 async function connectToMongoDB() {
+    if (mongoose.connection.readyState >= 1) return;
     try {
         await mongoose.connect(MONGODB_URI, {
             serverSelectionTimeoutMS: 10000,
@@ -15,8 +15,7 @@ async function connectToMongoDB() {
         console.log("Connected to MongoDB successfully");
     } catch (error) {
         console.error("Error connecting to MongoDB:", error);
-        console.log("Retrying connection in 5 seconds...");
-        setTimeout(connectToMongoDB, 5000);
+        throw error;
     }
 }
 
@@ -35,9 +34,7 @@ app.use(cors(corsOptions));
 
 app.use("/api/v1", mainRouter);
 
-app.listen(PORT, () => {
-    console.log(`app is running on port ${PORT}`);
-});
+module.exports = app;
 
 
 
